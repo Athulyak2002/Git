@@ -1,42 +1,28 @@
-var express = require('express')
-var routes = require('./routes/user')
-var user = require('./routes/user')
-var http = require('http')
-var path = require('path');
-var session = require('express-session');
-var app = express();
-var mysql      = require('mysql');
-var bodyParser=require("body-parser");
-var connection = mysql.createConnection({
-              host     : 'localhost',
-              user     : 'root',
-              password : '',
-              database : 'bank'
-            });
- 
-connection.connect();
- 
-global.db = connection;
- 
-app.set('port', process.env.PORT || 8080);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({
-              secret: 'keyboard cat',
-              resave: false,
-              saveUninitialized: true,
-              cookie: { maxAge: 60000 }
-            }))
- 
-app.get('/', routes.index);
-app.get('/signup', user.signup);
-app.post('/signup', user.signup);
-app.get('/login', routes.index);
-app.post('/login', user.login);
-app.get('/home/dashboard', user.dashboard);
-app.get('/home/logout', user.logout);
-app.get('/home/profile',user.profile);
-app.listen(8080)
+var registrationRouter = require('./routes/registration-route');
+var loginRouter = require('./routes/login-route');
+var dashboardRouter = require('./routes/dashboard-route');
+var logoutRouter = require('./routes/logout-route');
+
+var express = require('express');
+var session = require('express-session')
+let app = express();
+const port = 3000
+app.set('view engine', 'ejs')
+
+app.use('/', registrationRouter);
+app.use('/', loginRouter);
+app.use('/', dashboardRouter);
+app.use('/', logoutRouter);
+
+
+app.use(session({ 
+  secret: '123456cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 60000 }
+}))
+
+
+app.listen(port, () => {
+  console.log('App listening at port ${port}')
+})
